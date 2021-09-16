@@ -1,139 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - materials - video - webcam</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
-	</head>
-	<body>
 
-		
-		<video id="video" style="display:none" autoplay playsinline></video>
+<head>
+	<title>three.js webgl - materials - video - webcam</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
+</head>
 
-		<script type="module">
-        //import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js'
-
-            import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-            import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
-			var camera, scene, renderer, video, theModel;
-
-			init();
-			animate();
-
-            function LoadGLTF(input) {
-
-            const _loader = new GLTFLoader();
-      if (input) {
-          console.log(input)
-          var binaryData = [];
-          binaryData.push(input);
-      let url = window.URL.createObjectURL(new Blob(binaryData, {type: "model/gltf+json"}));
-      console.log(url)
-      _loader.load(input, function(gltf) {
-
-        theModel = gltf.scene;
- 
-        scene.add(theModel);
-        
-        theModel.position.set(0, 0, -1)
-        theModel.scale.set(.25, .25, .25)
-        console.log(theModel.position)
-      
-      });
+<body>
 
 
-      }
-    }
-			function init() {
+	<video id="video" style="display:none" autoplay playsinline></video>
 
-				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
-				camera.position.z = 0.01;
-                
-				scene = new THREE.Scene();
-                const color = 0xFFFFFF;
-const intensity = 1;
-const light = new THREE.AmbientLight(color, intensity);
-scene.add(light);
-				video = document.getElementById( 'video' );
+	<script type="module">
+		//import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js'
 
-				const texture = new THREE.VideoTexture( video );
+		import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+		import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
+		var camera, scene, renderer, video, theModel, aspect;
 
-				const geometry = new THREE.PlaneGeometry( 2,3 );
-				//geometry.scale( 0.5, 0.5, 0.5 );
-				const material = new THREE.MeshBasicMaterial( { map: texture } );
+		init();
+		animate();
 
-				const count = 1;
-				const radius = 1;
+		function LoadGLTF(input) {
 
-				for ( let i = 1, l = count; i <= l; i ++ ) {
+			const _loader = new GLTFLoader();
+			if (input) {
+				console.log(input)
+				var binaryData = [];
+				binaryData.push(input);
+				let url = window.URL.createObjectURL(new Blob(binaryData, { type: "model/gltf+json" }));
+				console.log(url)
+				_loader.load(input, function (gltf) {
 
-					const phi = Math.acos( - 1 + ( 1 * i ) / l );
-					const theta = Math.sqrt( l * Math.PI ) * phi;
+					theModel = gltf.scene;
 
-					const mesh = new THREE.Mesh( geometry, material );
-					mesh.position.setFromSphericalCoords( radius, phi, theta );
-					//mesh.lookAt( camera.position );
-					scene.add( mesh );
+					scene.add(theModel);
 
-				}
+					theModel.position.set(0, 0, -1)
+					theModel.scale.set(.25, .25, .25)
+					console.log(theModel.position)
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+				});
 
-				//const controls = new OrbitControls( camera, renderer.domElement );
-				//controls.enableZoom = false;
-				//controls.enablePan = false;
 
-				window.addEventListener( 'resize', onWindowResize );
+			}
+		}
+		function init() {
 
-				//
+			aspect = window.innerWidth / window.innerHeight;
 
-				if ( navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
 
-					const constraints = { video: { width: 1284, height:2778, facingMode: 'environment' } };
+			camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 10000);
+			//camera.position.z = 0.01;
+			camera.position.set( 0, 0, 55 );
+			scene = new THREE.Scene();
+			const color = 0xFFFFFF;
+			const intensity = 1;
+			const light = new THREE.AmbientLight(color, intensity);
+			scene.add(light);
+			video = document.getElementById('video');
 
-					navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
+			const texture = new THREE.VideoTexture(video);
 
-						// apply the stream to the video element used in the texture
+			const geometry = new THREE.PlaneBufferGeometry(110 * aspect, 110);
+			geometry.scale(0.5, 0.5, 0.5);
+			const material = new THREE.MeshBasicMaterial({ map: texture });
 
-						video.srcObject = stream;
-						video.play();
+			const count = 1;
+			const radius = 1;
 
-					} ).catch( function ( error ) {
+			for (let i = 1, l = count; i <= l; i++) {
 
-						console.error( 'Unable to access the camera/webcam.', error );
+				const phi = Math.acos(- 1 + (1 * i) / l);
+				const theta = Math.sqrt(l * Math.PI) * phi;
 
-					} );
-
-				} else {
-
-					console.error( 'MediaDevices interface not available.' );
-
-				}
-                LoadGLTF('cube.glb');
+				const mesh = new THREE.Mesh(geometry, material);
+				mesh.position.setFromSphericalCoords(radius, phi, theta);
+				//mesh.lookAt( camera.position );
+				scene.add(mesh);
 
 			}
 
-			function onWindowResize() {
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+			//const controls = new OrbitControls( camera, renderer.domElement );
+			//controls.enableZoom = false;
+			//controls.enablePan = false;
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+			window.addEventListener('resize', onWindowResize);
+
+			//
+
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+				const constraints = { video: { width: 1284, height: 2778, facingMode: 'environment' } };
+
+				navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+
+					// apply the stream to the video element used in the texture
+
+					video.srcObject = stream;
+					video.play();
+
+				}).catch(function (error) {
+
+					console.error('Unable to access the camera/webcam.', error);
+
+				});
+
+			} else {
+
+				console.error('MediaDevices interface not available.');
 
 			}
 
-			function animate() {
 
-				requestAnimationFrame( animate );
-				renderer.render( scene, camera );
-                theModel.rotation.x += .01;
-			}
 
-		</script>
 
-	</body>
+
+
+
+
+
+			LoadGLTF('cube.glb');
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+			renderer.render(scene, camera);
+			theModel.rotation.x += .01;
+		}
+
+	</script>
+
+</body>
+
 </html>
