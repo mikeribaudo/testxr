@@ -17,71 +17,34 @@
 		//import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js'
 
 		import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-		import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
-		var camera, scene, renderer, video, theModel, aspect;
+		//import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
+		var camera, scene, renderer, video, theModel, aspect, position, seethruPlane;
 
 		init();
 		animate();
 
-		function LoadGLTF(input) {
-
-			const _loader = new GLTFLoader();
-			if (input) {
-				console.log(input)
-				var binaryData = [];
-				binaryData.push(input);
-				let url = window.URL.createObjectURL(new Blob(binaryData, { type: "model/gltf+json" }));
-				console.log(url)
-				_loader.load(input, function (gltf) {
-
-					theModel = gltf.scene;
-
-					scene.add(theModel);
-
-					theModel.position.set(0, 0, -1)
-					theModel.scale.set(.25, .25, .25)
-					console.log(theModel.position)
-
-				});
-
-
-			}
-		}
+		
 		function init() {
 
-			aspect = window.innerWidth / window.innerHeight;
-			console.log(aspect)
 
 			camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 10000);
-			//camera.position.z = 0.01;
-			camera.position.set( 0, 0, 55 );
+			
+
 			scene = new THREE.Scene();
-			const color = 0xFFFFFF;
-			const intensity = 1;
-			const light = new THREE.AmbientLight(color, intensity);
-			scene.add(light);
+			
 			video = document.getElementById('video');
 
-			const texture = new THREE.VideoTexture(video);
+			var texture = new THREE.VideoTexture(video);
 
-			const geometry = new THREE.PlaneBufferGeometry(90 * aspect, 90);
+			var geometry = new THREE.PlaneGeometry(4, 3.5);
 			geometry.scale(0.5, 0.5, 0.5);
-			const material = new THREE.MeshBasicMaterial({ map: texture });
+			var material = new THREE.MeshBasicMaterial({ map: texture });
+			seethruPlane = new THREE.Mesh(geometry, material);
+			
+			//mesh.lookAt( camera.position );
+			scene.add(seethruPlane);
 
-			const count = 1;
-			const radius = 1;
-
-			for (let i = 1, l = count; i <= l; i++) {
-
-				const phi = Math.acos(- 1 + (1 * i) / l);
-				const theta = Math.sqrt(l * Math.PI) * phi;
-
-				const mesh = new THREE.Mesh(geometry, material);
-				mesh.position.setFromSphericalCoords(radius, phi, theta);
-				//mesh.lookAt( camera.position );
-				scene.add(mesh);
-
-			}
+			
 
 			renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setPixelRatio(window.devicePixelRatio);
@@ -134,7 +97,7 @@
 		function onWindowResize() {
 
 			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
+			camera.updateMatrixWorld(true)
 
 			renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -143,9 +106,30 @@
 		function animate() {
 
 			requestAnimationFrame(animate);
+
+            camera.updateMatrixWorld(true)
+            
+		 position = new THREE.Vector3(-0,0,-20)	// TODO how come you got that offset on x ???
+		seethruPlane.position.copy(position)
+		camera.localToWorld(seethruPlane.position)
 			renderer.render(scene, camera);
-			theModel.rotation.x += .01;
+
 		}
+        camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
+		seethruPlane.quaternion.copy( camera.quaternion )
+
+        var fov = THREE.Math.radToDeg(Math.atan(1/camera.projectionMatrix.elements[5]))*2;
+	// console.log('fov', fov)
+		
+		//var elementWidth = parseFloat( arToolkitSource.domElement.style.width.replace(/px$/,''), 10 )
+		//var elementHeight = parseFloat( arToolkitSource.domElement.style.height.replace(/px$/,''), 10 )
+		
+		var aspect = window.innerWidth / window.innerHeight
+
+        seethruPlane.scale.y = Math.tan(THREE.Math.DEG2RAD * fov/2)*position.length() 
+		// get seethruPlane aspect
+		seethruPlane.scale.x = seethruPlane.scale.y * aspect
+	
 
 	</script>
 
