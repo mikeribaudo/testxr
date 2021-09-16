@@ -8,10 +8,7 @@
 	</head>
 	<body>
 
-		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - video webcam input
-		</div>
-
+		
 		<video id="video" style="display:none" autoplay playsinline></video>
 
 		<script type="module">
@@ -62,7 +59,7 @@ scene.add(light);
 
 				const texture = new THREE.VideoTexture( video );
 
-				const geometry = new THREE.PlaneGeometry( 3, 2 );
+				const geometry = new THREE.PlaneGeometry( 16, 9 );
 				//geometry.scale( 0.5, 0.5, 0.5 );
 				const material = new THREE.MeshBasicMaterial( { map: texture } );
 
@@ -96,7 +93,7 @@ scene.add(light);
 
 				if ( navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
 
-					const constraints = { video: { width: 1280, height: 720, facingMode: 'environment' } };
+					const constraints = { video: { width: 1284, height:2778, facingMode: 'environment' } };
 
 					navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
 
