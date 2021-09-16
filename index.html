@@ -63,8 +63,12 @@ remove: function() {
 });
     </script>
 
-    <a-scene arjs-webcam-texture>
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#ffffff"></a-plane>
+    <a-scene vr-mode-ui="enabled:false">
+        <a-camera look-controls="enabled: false"></a-camera>
+        <a-entity arjs-webcam-texture>
+        <a-plane position="0 1 -4" rotation="-90 180 0" width="4" height="4" color="#ffffff"></a-plane>
+    
+
     </a-scene>
 
     
